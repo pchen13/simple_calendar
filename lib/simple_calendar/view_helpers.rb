@@ -45,13 +45,7 @@ module SimpleCalendar
         tags << build_thead_section(selected_month)
         tags << content_tag(:tbody, :'data-month'=>selected_month.month, :'data-year'=>selected_month.year) do
           month.collect do |week|
-            content_tag(:tr, :class => 'week '+set_current_week_class(week, today)) do
-
-              week.collect do |date|
-                build_day_section(selected_month, date, events, options, block)
-              end.join.html_safe
-            end #content_tag :tr
-
+            build_week_section(week, Date.today, selected_month, events, options, block)
           end.join.html_safe
         end #content_tag :tbody
 
@@ -119,6 +113,15 @@ module SimpleCalendar
       content_tag(:td, :class => td_class.join(" "), :data => data) do
         build_events_div(cur_events, day, options, block)
       end #content_tag :td
+    end
+    
+    def build_week_section(week, today, selected_month, events, options, block)
+      content_tag(:tr, :class => 'week '+set_current_week_class(week, today)) do
+        days = week.collect do |day|
+          build_day_section(selected_month, day, events, options, block)
+        end
+        days.join.html_safe
+      end #content_tag :tr
     end
     
     # Returns an array of events for a given day
