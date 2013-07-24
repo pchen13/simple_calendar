@@ -44,7 +44,6 @@ module SimpleCalendar
         
         tags << build_thead_section(selected_month)
         tags << content_tag(:tbody, :'data-month'=>selected_month.month, :'data-year'=>selected_month.year) do
-
           month.collect do |week|
             content_tag(:tr, :class => 'week '+set_current_week_class(week, today)) do
 
@@ -54,18 +53,8 @@ module SimpleCalendar
                 td_class = build_td_class(selected_month, date, cur_events)
 
                 content_tag(:td, :class => td_class.join(" "), :'data-date-iso'=>date.to_s, 'data-date'=>date.to_s.gsub('-', '/')) do
-                  content_tag(:div) do
-                    divs = []
-                    concat content_tag(:div, date.day.to_s, :class=>"day_number")
-
-                    if cur_events.empty? && options[:empty_date]
-                      concat options[:empty_date].call(date)
-                    else
-                      divs << cur_events.collect{ |event| block.call(event) }
-                    end
-
-                    divs.join.html_safe
-                  end #content_tag :div
+                  build_events_div(cur_events, date, options, block)
+                  
                 end #content_tag :td
 
               end.join.html_safe
@@ -110,6 +99,21 @@ module SimpleCalendar
       
       th_tr_class = set_current_day_class(selected_month, Date.today) 
       content_tag(:thead, build_thead_content(day_names, {:class => th_tr_class}))
+    end
+    
+    def build_events_div(events, day, options, block)
+      content_tag(:div) do
+        divs = []
+        concat content_tag(:div, day.day.to_s, :class=>"day_number")
+
+        if events.empty? && options[:empty_date]
+          concat options[:empty_date].call(day)
+        else
+          divs << events.collect{ |event| block.call(event) }
+        end
+
+        divs.join.html_safe
+      end #content_tag :div
     end
     # Returns an array of events for a given day
     def day_events(date, events)
