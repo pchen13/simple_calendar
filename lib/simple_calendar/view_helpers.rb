@@ -43,7 +43,9 @@ module SimpleCalendar
         tags << month_header(selected_month, options)
         day_names = I18n.t("date.abbr_day_names")
         day_names = day_names.rotate((Date::DAYS_INTO_WEEK[options[:start_day]] + 1) % 7)
-        tags << content_tag(:thead, content_tag(:tr, day_names.collect { |name| content_tag :th, name, :class => set_current_day_class(selected_month, today)}.join.html_safe))
+        
+        th_tr_class = set_current_day_class(selected_month, today) 
+        tags << content_tag(:thead, build_thead_content(day_names, {:class => th_tr_class}))
         tags << content_tag(:tbody, :'data-month'=>selected_month.month, :'data-year'=>selected_month.year) do
 
           month.collect do |week|
@@ -98,6 +100,11 @@ module SimpleCalendar
       if (selected_month.month == day.month && day.strftime("%a") == name)
         "current-day"
       end
+    end
+    
+    def build_thead_content(day_names, options={})
+      tr_content = day_names.collect { |name| content_tag(:th, name, options)}
+      content_tag(:tr, tr_content.join.html_safe)
     end
     # Returns an array of events for a given day
     def day_events(date, events)
