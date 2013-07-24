@@ -50,16 +50,9 @@ module SimpleCalendar
             content_tag(:tr, :class => (week.include?(Date.today) ? "current-week week" : "week")) do
 
               week.collect do |date|
-                td_class = ["day"]
-                td_class << "today" if today == date
-                td_class << "not-current-month" if selected_month.month != date.month
-                td_class << "past" if today > date
-                td_class << "future" if today < date
-                td_class << "wday-#{date.wday.to_s}" # <- to enable different styles for weekend, etc
-
                 cur_events = day_events(date, events)
 
-                td_class << (cur_events.any? ? "events" : "no-events")
+                td_class = build_td_class(selected_month, date, cur_events)
 
                 content_tag(:td, :class => td_class.join(" "), :'data-date-iso'=>date.to_s, 'data-date'=>date.to_s.gsub('-', '/')) do
                   content_tag(:div) do
@@ -86,6 +79,16 @@ module SimpleCalendar
       end #content_tag :table
     end
 
+    def build_td_class(selected_month, day, events)
+      today = Date.today
+      td_class = ["day"]
+      td_class << "today" if today == day
+      td_class << "not-current-month" if selected_month.month != day.month
+      td_class << "past" if today > day
+      td_class << "future" if today < day
+      td_class << "wday-#{day.wday.to_s}" # <- to enable different styles for weekend, etc
+      td_class << (events.any? ? "events" : "no-events")
+    end
     # Returns an array of events for a given day
     def day_events(date, events)
       events.select { |e| e.start_time.to_date == date }.sort_by { |e| e.start_time }
