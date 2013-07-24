@@ -48,15 +48,7 @@ module SimpleCalendar
             content_tag(:tr, :class => 'week '+set_current_week_class(week, today)) do
 
               week.collect do |date|
-                cur_events = day_events(date, events)
-
-                td_class = build_td_class(selected_month, date, cur_events)
-
-                content_tag(:td, :class => td_class.join(" "), :'data-date-iso'=>date.to_s, 'data-date'=>date.to_s.gsub('-', '/')) do
-                  build_events_div(cur_events, date, options, block)
-                  
-                end #content_tag :td
-
+                build_day_section(selected_month, date, events, options, block)
               end.join.html_safe
             end #content_tag :tr
 
@@ -115,6 +107,20 @@ module SimpleCalendar
         divs.join.html_safe
       end #content_tag :div
     end
+    
+    def build_day_section(selected_month, day, events, options, block)
+      cur_events = day_events(day, events)
+
+      td_class = build_td_class(selected_month, day, cur_events)
+      
+      # for rails >= 3.2, we can use :data symbol with hash
+      data = {:date-iso => day.to_s, :date => day.to_s.gsub('-', '/')}
+      
+      content_tag(:td, :class => td_class.join(" "), :data => data) do
+        build_events_div(cur_events, day, options, block)
+      end #content_tag :td
+    end
+    
     # Returns an array of events for a given day
     def day_events(date, events)
       events.select { |e| e.start_time.to_date == date }.sort_by { |e| e.start_time }
