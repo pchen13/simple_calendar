@@ -47,7 +47,7 @@ module SimpleCalendar
         tags << content_tag(:tbody, :'data-month'=>selected_month.month, :'data-year'=>selected_month.year) do
 
           month.collect do |week|
-            content_tag(:tr, :class => (week.include?(Date.today) ? "current-week week" : "week")) do
+            content_tag(:tr, :class => 'week '+set_current_week_class(week, today)) do
 
               week.collect do |date|
                 cur_events = day_events(date, events)
@@ -88,6 +88,10 @@ module SimpleCalendar
       td_class << "future" if today < day
       td_class << "wday-#{day.wday.to_s}" # <- to enable different styles for weekend, etc
       td_class << (events.any? ? "events" : "no-events")
+    end
+    
+    def set_current_week_class(week, day)
+      "current-week" if week.include?(day)
     end
     # Returns an array of events for a given day
     def day_events(date, events)
